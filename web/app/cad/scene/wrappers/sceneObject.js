@@ -3,6 +3,7 @@ import {BasisForPlane} from '../../../math/l3space'
 import DPR from 'dpr'
 import {setAttribute} from "scene/objectData";
 import {genSolidId} from "../../craft/cadRegistryPlugin";
+import {getAttribute} from '../../../../../modules/scene/objectData';
 
 //todo: rename to shell
 export class SceneSolid {
@@ -103,7 +104,7 @@ export class SceneFace {
 
   registerMeshFace(threeFace) {
     this.meshFaces.push(threeFace);
-    threeFace.__TCAD_SceneFace = this;
+    setAttribute(threeFace, 'face', this);
   }
 
   updateSketch(sketch) {
@@ -128,7 +129,8 @@ export class SceneFace {
     const addSketchObjects = (sketchObjects, material, close) => {
       for (let sketchObject of sketchObjects) {
         let line = new THREE.Line(new THREE.Geometry(), material);
-        line.__TCAD_SketchObject = sketchObject;
+        let sceneSketchObject = new SceneSketchObject(sketchObject, line);
+        setAttribute(line, 'sketchObject', sceneSketchObject);
         const chunks = sketchObject.approximate(10);
         function addLine(p, q) {
           const lg = line.geometry;
@@ -150,7 +152,12 @@ export class SceneFace {
   }
 
   findById(sketchObjectId) {
-    return this.sketch3DGroup.children.find(o => o.__TCAD_SketchObject && o.__TCAD_SketchObject.id === sketchObjectId);
+    for (let o of this.sketch3DGroup.children) {
+      let sceneSketchObject = getAttribute(o, 'sketchObject');
+      if (sceneSketchObject && sceneSketchObject.id === sketchObjectId) {
+        return sceneSketchObject;  
+      }
+    }
   }
 
   getSketchObjectVerticesIn3D(sketchObjectId) {
@@ -165,12 +172,22 @@ export class SceneFace {
 
 export class SceneEdge {
   
-  constructor(id, curve) {
+  constructor(id, curve, face, representation, marker) {
     this.id = id;
     this.curve = curve;
-    this.data = {};
+    this.face = face;
+    this.representation = representation;
+    this.marker = marker;
   }
-  
+}
+
+export class SceneSketchObject {
+
+  constructor(model, viewObject) {
+    this.id = model.id;
+    this.model = model;
+    this.viewObject = viewObject;
+  }
 }
 
 export const SKETCH_MATERIAL = new THREE.LineBasicMaterial({color: 0xFFFFFF, linewidth: 3/DPR});

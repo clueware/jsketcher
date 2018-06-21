@@ -57,11 +57,12 @@
     "jwerty": "^0.3.2",
     "less": "2.7.3",
     "libtess": "1.2.2",
+    "mobx": "^4.3.0",
     "mousetrap": "1.6.1",
     "numeric": "1.2.6",
     "prop-types": "15.6.0",
-    "react": "16.2.0",
-    "react-dom": "16.2.0",
+    "react": "^16.4.0",
+    "react-dom": "^16.4.0",
     "sprintf": "0.1.5",
     "three": "0.89.0"
   }
